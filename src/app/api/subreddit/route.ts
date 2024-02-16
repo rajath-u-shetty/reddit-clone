@@ -21,7 +21,7 @@ export async function POST(req: Request){
         });
 
         if(subredditExists){
-            return new Response("subreddit already exists", { status: 401})
+            return new Response("subreddit already exists", { status: 401 })
         }
 
         const subreddit = await db.subreddit.create({
@@ -39,7 +39,7 @@ export async function POST(req: Request){
         })
 
         return new Response(subreddit.name)
-    } catch (error) {
+        } catch (error) {
         if(error instanceof z.ZodError){{
             return new Response(error.message, { status: 422 })
         }}

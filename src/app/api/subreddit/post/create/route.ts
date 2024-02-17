@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   } catch (error) {
     (error)
     if (error instanceof z.ZodError) {
-      return new Response(error.message, { status: 400 })
+      return new Response(error.message, { status: 422 })
     }
 
     return new Response(

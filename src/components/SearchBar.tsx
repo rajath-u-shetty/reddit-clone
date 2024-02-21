@@ -1,10 +1,10 @@
 import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "cmdk"
 import { Command } from "./ui/Command"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import axios from "axios"
 import { Prisma, Subreddit } from "@prisma/client"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Users } from "lucide-react"
 import { request } from "http"
 import debounce from "lodash.debounce"
@@ -15,8 +15,7 @@ const SearchBar = () => {
 
   const [input, setInput] = useState<string>("")
   const router = useRouter();
-
-  
+  const pathname = usePathname()
 
   const { data: queryResults, refetch, isFetching, isFetched } = useQuery({
     queryFn: async() => {
@@ -43,6 +42,10 @@ const SearchBar = () => {
   useOnClickOutside(commandRef, () => {
     setInput("")
   })
+
+  useEffect(() => {
+    setInput("")
+  }, [pathname])
 
   return (
     <Command ref={commandRef} className="relative rounded-lg border max-w-lg z-50 overflow-visible">

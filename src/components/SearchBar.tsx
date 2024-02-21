@@ -1,13 +1,14 @@
 import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "cmdk"
 import { Command } from "./ui/Command"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import axios from "axios"
 import { Prisma, Subreddit } from "@prisma/client"
 import { useRouter } from "next/navigation"
 import { Users } from "lucide-react"
 import { request } from "http"
 import debounce from "lodash.debounce"
+import { useOnClickOutside } from "@/hooks/use-on-click-outside"
 
 
 const SearchBar = () => {
@@ -37,8 +38,14 @@ const SearchBar = () => {
     request()
   }, [])
 
+  const commandRef = useRef<HTMLDivElement>(null)
+
+  useOnClickOutside(commandRef, () => {
+    setInput("")
+  })
+
   return (
-    <Command className="relative rounded-lg border max-w-lg z-50 overflow-visible">
+    <Command ref={commandRef} className="relative rounded-lg border max-w-lg z-50 overflow-visible">
       <CommandInput
         onValueChange={(text) => {
           setInput(text)

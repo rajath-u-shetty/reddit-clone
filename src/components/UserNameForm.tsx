@@ -5,14 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { User } from "@prisma/client"
 import { FC } from "react"
 import { useForm } from "react-hook-form"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/Card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/Card"
 import { Label } from "./ui/Label"
 import { Input } from "./ui/Input"
 import { useMutation } from "@tanstack/react-query"
 import axios, { AxiosError } from "axios"
 import { toast } from "@/hooks/use-toast"
-import { useCustomToast } from "@/hooks/use-custom-toast"
 import { useRouter } from "next/navigation"
+import { Button } from "./ui/Button"
 
 interface UserNameFormProps {
     user: Pick<User, 'id' | 'username'>
@@ -29,7 +29,7 @@ const UserNameForm: FC<UserNameFormProps> = ({ user }) => {
         }
     })
 
-    const {} = useMutation({
+    const { mutate: updateUsername, isLoading} = useMutation({
         mutationFn: async({name}: UsernameRequest) => {
             const payload: UsernameRequest ={name}
 
@@ -60,7 +60,7 @@ const UserNameForm: FC<UserNameFormProps> = ({ user }) => {
         }
     })
   return (
-    <form onSubmit={handleSubmit(() => {})}>
+    <form onSubmit={handleSubmit((e) => updateUsername(e))}>
         <Card>
             <CardHeader>
                 <CardTitle>Your username</CardTitle>
@@ -83,6 +83,10 @@ const UserNameForm: FC<UserNameFormProps> = ({ user }) => {
                     )}
                 </div>
             </CardContent>
+
+            <CardFooter>
+                <Button isLoading={isLoading}>Change Name</Button>
+            </CardFooter>
         </Card>
     </form>
   )

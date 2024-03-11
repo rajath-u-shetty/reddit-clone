@@ -1,6 +1,5 @@
 import CloseModel from '@/components/CloseModel'
 import SignIn from '@/components/SignIn'
-import { FC } from 'react'
 
 
 const page = () => {

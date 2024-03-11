@@ -1,7 +1,6 @@
 "use client"
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { FC } from 'react'
 
 const Output = dynamic(async () => (await import(`editorjs-react-renderer`)).default, {
     ssr: false,
@@ -42,10 +41,14 @@ function CustomImageRenderer({ data }: any){
     )
 }
 
-const EditorOutput: FC<EditorOutputProps> = ({ content }) => {
+const EditorOutput = ({ content }: EditorOutputProps) => {
     return (
-    <Output style={style} className='text-sm' renderers={renderers} />
-    )
-}
-
+      <Output
+        className="text-sm"
+        renderers={renderers}
+        style={style}
+        data={content}
+      />
+    );
+  };
 export default EditorOutput

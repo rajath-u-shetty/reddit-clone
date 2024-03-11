@@ -1,80 +1,109 @@
-import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "cmdk"
-import { Command } from "./ui/Command"
-import { useQuery } from "@tanstack/react-query"
-import { useCallback, useEffect, useRef, useState } from "react"
-import axios from "axios"
-import { Prisma, Subreddit } from "@prisma/client"
-import { usePathname, useRouter } from "next/navigation"
-import { Users } from "lucide-react"
-import { request } from "http"
-import debounce from "lodash.debounce"
-import { useOnClickOutside } from "@/hooks/use-on-click-outside"
+'use client'
 
+import { Prisma, Subreddit } from '@prisma/client'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import debounce from 'lodash.debounce'
+import { usePathname, useRouter } from 'next/navigation'
+import { FC, useCallback, useEffect, useRef, useState } from 'react'
 
-const SearchBar = () => {
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/Command'
+import { useOnClickOutside } from '@/hooks/use-on-click-outside'
+import { Users } from 'lucide-react'
 
-  const [input, setInput] = useState<string>("")
-  const router = useRouter();
+interface SearchBarProps {}
+
+const SearchBar: FC<SearchBarProps> = ({}) => {
+  const [input, setInput] = useState<string>('')
   const pathname = usePathname()
+  const commandRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
-  const { data: queryResults, refetch, isFetching, isFetched } = useQuery({
-    queryFn: async() => {
-      if(!input) return []
-    const { data } = await axios.get(`/api/search?=${input}`)
-    return data as (Subreddit & {
-      _count: Prisma.SubredditCountOutputType
-    })[]
-    },
-    queryKey: ['search-query'],
-    enabled: false,
+  //when we click aside, the suggestions should not be shown
+  useOnClickOutside(commandRef, () => {
+    setInput('')
   })
 
-  const request = debounce(()=> {
+  //when user not typed for some time -> make debounce request, spam debounce request
+  //refetch all info from communities 
+  const request = debounce(async () => {
     refetch()
   }, 300)
 
   const debounceRequest = useCallback(() => {
     request()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const commandRef = useRef<HTMLDivElement>(null)
-
-  useOnClickOutside(commandRef, () => {
-    setInput("")
+  //fetch data mentioned in url
+  const {
+    isFetching,
+    data: queryResults,
+    refetch,
+    isFetched,
+  } = useQuery({
+    queryFn: async () => {
+      if (!input) return []
+      const { data } = await axios.get(`/api/search?q=${input}`)
+      return data as (Subreddit & {
+        _count: Prisma.SubredditCountOutputType
+      })[]
+    },
+    queryKey: ['search-query'],
+    enabled: false,
   })
 
+  //on clicking enter, go to website
   useEffect(() => {
-    setInput("")
+    setInput('')
   }, [pathname])
 
   return (
-    <Command ref={commandRef} className="relative rounded-lg border max-w-lg z-50 overflow-visible">
+    <Command
+      ref={commandRef}
+      className='relative rounded-lg border max-w-lg z-50 overflow-visible'>
       <CommandInput
+        // isLoading={isFetching}
         onValueChange={(text) => {
           setInput(text)
           debounceRequest()
-        }} 
-        placeholder="Search Communities..." 
-        className="outline-none border-none focus:border-none focus:outline-none ring-0" />
+        }}
+        value={input}
+        className='outline-none border-none focus:border-none focus:outline-none ring-0'
+        placeholder='Search communities...'
+      />
 
-        {input.length > 0 ? (
-          <CommandList className="absolute bg-white top-full inset-x-0 shadow rounded-b-md">
-            {isFetched && <CommandEmpty>No Results found.</CommandEmpty>}
-            {(queryResults?.length ?? 0) > 0 ? (
-              <CommandGroup heading="Communities">
-                {queryResults?.map((subreddit) => (
-                  <CommandItem onSelect={(e) => {
+      {input.length > 0 && (
+        // showing suggestions
+        <CommandList className='absolute bg-white top-full inset-x-0 shadow rounded-b-md'>
+          {isFetched && <CommandEmpty>No results found.</CommandEmpty>}
+          {(queryResults?.length ?? 0) > 0 ? (
+            // contains all communitys we have found
+            <CommandGroup heading='Communities'>
+              {queryResults?.map((subreddit) => (
+                <CommandItem
+                  onSelect={(e) => {
                     router.push(`/r/${e}`)
                     router.refresh()
-                  }} key={subreddit.id} value={subreddit.name}>
-                    <Users className="mr-2 h-4 w-4"/>
-                    <a href={`/r/${subreddit.name}`}>r/{subreddit.name}</a>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ): null}
-          </CommandList>
-        ): null}
+                  }}
+                  key={subreddit.id}
+                  value={subreddit.name}>
+                  <Users className='mr-2 h-4 w-4' />
+                  <a href={`/r/${subreddit.name}`}>r/{subreddit.name}</a>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ) : null}
+        </CommandList>
+      )}
     </Command>
   )
 }

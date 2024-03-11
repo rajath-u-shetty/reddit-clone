@@ -1,4 +1,4 @@
-"use  client"
+"use client"
 import { FC, useState } from "react"
 import { Label } from "./ui/Label"
 import { Textarea } from "./ui/Textarea"

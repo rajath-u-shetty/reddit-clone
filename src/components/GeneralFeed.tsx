@@ -1,7 +1,7 @@
 import { INFINITE_SCROLLING_PAGINATION_RESULTS } from "@/config"
-import { db } from "@/lib/db"
-import PostFeed from "./PostFeed"
 import { getAuthSession } from "@/lib/auth"
+import { db } from "@/lib/db"
+import PostFeed from "./PostFeed";
 
 const GeneralFeed = async () => {
     const session = await getAuthSession();
@@ -34,7 +34,7 @@ const GeneralFeed = async () => {
         },
         take: INFINITE_SCROLLING_PAGINATION_RESULTS,
       })
-    
+      return <PostFeed initialPosts={posts} />;
 }
 
 export default GeneralFeed;

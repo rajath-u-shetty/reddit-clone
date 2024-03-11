@@ -43,7 +43,6 @@ const SearchBar: FC<SearchBarProps> = ({}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  //fetch data mentioned in url
   const {
     isFetching,
     data: queryResults,

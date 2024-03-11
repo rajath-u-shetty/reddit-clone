@@ -6,13 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum VoteType {
-  UP
-  DOWN
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
 }
 
 model Account {
@@ -113,6 +108,11 @@ model Comment {
 
   votes     CommentVote[]
   commentId String?
+}
+
+enum VoteType {
+  UP
+  DOWN
 }
 
 model Vote {
